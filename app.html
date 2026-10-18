@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interest Math - app</title>
+<style>
+  :root { --accent:#8a4b14; --ink:#241508; --paper:#faf3ec; --soft:#f2e3d2; }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:Georgia, "Times New Roman", serif; background:var(--paper); color:var(--ink); line-height:1.55; }
+  main { max-width:660px; margin:0 auto; }
+  .boundary { background:#fdeaea; border-left:6px solid #b03030; color:#5c1c1c; border-radius:6px; padding:1rem 1.1rem; }
+  .boundary strong { display:block; margin-bottom:.3rem; }
+  body { padding:2rem 1.2rem; }
+  h1 { font-size:1.8rem; color:var(--accent); }
+  .boundary { margin:1rem 0 1.4rem; }
+  .panel { background:var(--soft); border-left:5px solid var(--accent); border-radius:6px; padding:1rem 1.1rem; margin-bottom:1.1rem; }
+  h2 { font-size:1.1rem; margin-bottom:.6rem; }
+  p.note { font-size:.9rem; margin-bottom:.4rem; }
+  label { display:block; font-size:.9rem; margin:.45rem 0 .1rem; }
+  input, select { width:100%; padding:.45rem .55rem; font-size:1rem; border:1px solid #e0c7a8; border-radius:6px; background:#fff; color:var(--ink); }
+  .row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.6rem; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .out { margin-top:.7rem; font-size:.98rem; background:#fff; border:1px dashed #e0c7a8; border-radius:6px; padding:.6rem .7rem; min-height:2.4rem; }
+  .out.err { border-color:#b03030; color:#8a1f1f; }
+  footer { margin-top:1.8rem; font-size:.85rem; color:#85694a; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Interest Math</h1>
+  <div class="boundary">
+    <strong>Boundary: arithmetic only</strong>
+    This page works out simple and compound growth, time to double, and the rate between two amounts, from the numbers you type. It is not a forecast. It leaves out fees, taxes and inflation, and real accounts may compound or round differently. Check the terms of the account itself.
+  </div>
+
+  <div class="panel">
+    <h2>The growth truth</h2>
+    <p class="note">Simple interest next to compound interest on the same money.</p>
+    <div class="row2">
+      <div><label for="g-p">Starting amount</label><input id="g-p" type="number" step="any" value="100000"></div>
+      <div><label for="g-r">Yearly rate (%)</label><input id="g-r" type="number" step="any" value="5"></div>
+      <div><label for="g-y">Years</label><input id="g-y" type="number" step="1" value="10"></div>
+      <div><label for="g-n">Compounding</label><select id="g-n"><option value="1">yearly</option><option value="2">twice a year</option><option value="4">four times a year</option><option value="12" selected>monthly</option></select></div>
+    </div>
+    <div class="out" id="g-out"></div>
+  </div>
+
+  <div class="panel">
+    <h2>The double truth</h2>
+    <p class="note">How long a balance takes to first reach twice its start.</p>
+    <div class="row2">
+      <div><label for="d-r">Yearly rate (%)</label><input id="d-r" type="number" step="any" value="7"></div>
+      <div><label for="d-n">Compounding</label><select id="d-n"><option value="1">yearly</option><option value="2">twice a year</option><option value="4">four times a year</option><option value="12">monthly</option></select></div>
+    </div>
+    <div class="out" id="d-out"></div>
+  </div>
+
+  <div class="panel">
+    <h2>The rate truth</h2>
+    <p class="note">The least yearly rate that turns one amount into another, compounded yearly.</p>
+    <div class="row2">
+      <div><label for="r-s">Start amount</label><input id="r-s" type="number" step="any" value="10000"></div>
+      <div><label for="r-e">End amount</label><input id="r-e" type="number" step="any" value="20000"></div>
+      <div><label for="r-y">Years</label><input id="r-y" type="number" step="1" value="10"></div>
+      <div></div>
+    </div>
+    <div class="out" id="r-out"></div>
+  </div>
+
+  <footer>Interest Math is exact arithmetic over the numbers you enter. <a href="index.html">Why it exists</a>.</footer>
+</main>
+<script src="engine.js"></script>
+<script>
+  const num = (id) => Number(document.getElementById(id).value);
+  function show(id, fn) {
+    const out = document.getElementById(id);
+    try { out.textContent = fn(); out.classList.remove("err"); }
+    catch (e) { out.textContent = e.message; out.classList.add("err"); }
+  }
+  function recalc() {
+    show("g-out", () => growthTruth(num("g-p"), num("g-r"), num("g-y"), num("g-n")));
+    show("d-out", () => doubleTruth(num("d-r"), num("d-n")));
+    show("r-out", () => rateTruth(num("r-s"), num("r-e"), num("r-y")));
+  }
+  document.querySelectorAll("input, select").forEach((el) => {
+    el.addEventListener("input", recalc);
+    el.addEventListener("change", recalc);
+  });
+  recalc();
+</script>
+</body>
+</html>
